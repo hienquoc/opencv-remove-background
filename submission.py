@@ -64,7 +64,6 @@ while True:
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
     # Capture frame-by-frame
     ret, frame = cap.read()
-    background_return, background_frame = background_video_capture.read()
 
     # Change the color of the frame
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -84,10 +83,6 @@ while True:
     mask = cv2.inRange(hsv, lower_green_range, upper_green_range)
     mask_inverse = cv2.bitwise_not(mask)
 
-    # Crop background
-    crop_background_frame = background_frame[0:cap_height, 0:cap_width]
-    #crop_background_frame[mask == 0] = [0, 0, 0]
-
     # Get the background of image
     background = cv2.bitwise_and(frame, frame, mask=mask)
     foreground = cv2.bitwise_and(frame, frame, mask=mask_inverse)
@@ -96,6 +91,15 @@ while True:
     mask_of_asteroid = cv2.inRange(frame, lower_green_range, upper_green_range)
     mask_of_asteroid_show_asteroid = np.copy(frame)
     mask_of_asteroid_show_asteroid[mask_of_asteroid != 0] = 0
+
+    # Read background video
+    background_return, background_frame = background_video_capture.read()
+    background_frame = cv2.resize(background_frame, (cap_width, cap_height), interpolation=cv2.INTER_AREA)
+
+    # Change the color of the frame
+    #background_frame_hsv = cv2.cvtColor(background_frame, cv2.COLOR_BGR2HSV)
+    background_frame[mask == 0] = 0
+    final_complete_frame = background_frame + foreground
 
     debug.title = 'class: main def: while cap.isOpened()'
     debug_path = {'callback.x': callback.x,
@@ -106,10 +110,11 @@ while True:
 
         # cv2.imshow(video_window_name, frame)
         # cv2.imshow("Mask", mask)
-        cv2.imshow("Mask of Asteroid", mask_of_asteroid)
-        cv2.imshow("Foreground", foreground)
-        cv2.imshow("Background", background)
-        cv2.imshow("Crop Background", crop_background_frame)
+        # cv2.imshow("Mask of Asteroid", mask_of_asteroid)
+        # cv2.imshow("Background Frame Mask", background_frame)
+        # cv2.imshow("Foreground", foreground)
+        # cv2.imshow("Background", background)
+        cv2.imshow("Final Complete Video", final_complete_frame)
         cv2.imshow("Panel", panel)
         # Wait for 25 ms before moving on to the next frame
         # This will slow down the video
