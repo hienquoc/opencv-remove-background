@@ -35,13 +35,14 @@ def nothing(x):
 # Create a panel with track bar
 panel = np.zeros([100, 700, 3], np.uint8)       # Creation 100 pixel x 700 pixel 3 dimension of zeros for a black screen
 cv2.namedWindow("Panel")
-cv2.createTrackbar("Lower Hue", "Panel", 0, 179, nothing)
-cv2.createTrackbar("Upper Hue", "Panel", 179, 179, nothing)
+cv2.createTrackbar("Lower Hue", "Panel", 0, 255, nothing)
+cv2.createTrackbar("Upper Hue", "Panel", 0, 255, nothing)
 cv2.createTrackbar("Lower Saturation", "Panel", 0, 255, nothing)
 cv2.createTrackbar("Upper Saturation", "Panel", 255, 255, nothing)
 cv2.createTrackbar("Lower Value", "Panel", 0, 255, nothing)
 cv2.createTrackbar("Upper Value", "Panel", 255, 255, nothing)
-
+cv2.createTrackbar("Gaussian Blurr Pixel Size", "Panel", 0, 25, nothing)
+cv2.createTrackbar("Gaussian Blurr Sigma", "Panel", 0, 50, nothing)
 # Background Video
 background_video_filepath = os.path.abspath(os.getcwd()) + '\\Nebula - 25168.mp4'
 background_video_capture = cv2.VideoCapture(background_video_filepath)
@@ -60,7 +61,7 @@ while True:
     frame_counter += 1      # Increment frame count
     # If the last frame is reached, reset the capture and the frame_counter
     if frame_counter == cap.get(cv2.CAP_PROP_FRAME_COUNT):
-        frame_counter = 0  # Or whatever as long as it is the same as next line
+        frame_counter = 0  # Or whatever as long as it is the same as nex8b,y7qwdwsuhqwuiasujw;ae'{9grut6y59tug ikldyl ;b ,t line
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -68,16 +69,24 @@ while True:
     # Change the color of the frame
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    h_pixel_of_mouse_click = hsv[0, frame_counter, callback.y, callback.x, 0]
+    h_pixel = h_pixel_of_mouse_click.item(0, 0)
+    h_pixel_of_mouse_click_shape = h_pixel_of_mouse_click.shape
+    cv2.setTrackbarPos("Lower Hue", "Panel", int(h_pixel))
+    cv2.setTrackbarPos("Upper Hue", "Panel", int(h_pixel))
+
     get_lower_hue_trackbar_position = cv2.getTrackbarPos("Lower Hue", "Panel")
-    getl_upper_hue_trackbar_position = cv2.getTrackbarPos("Upper Hue", "Panel")
+    get_upper_hue_trackbar_position = cv2.getTrackbarPos("Upper Hue", "Panel")
     get_lower_saturation_trackbar_position = cv2.getTrackbarPos("Lower Saturation", "Panel")
-    getl_upper_saturation_trackbar_position = cv2.getTrackbarPos("Upper Saturation", "Panel")
+    get_upper_saturation_trackbar_position = cv2.getTrackbarPos("Upper Saturation", "Panel")
     get_lower_value_trackbar_position = cv2.getTrackbarPos("Lower Value", "Panel")
-    getl_upper_value_trackbar_position = cv2.getTrackbarPos("Upper Value", "Panel")
+    get_upper_value_trackbar_position = cv2.getTrackbarPos("Upper Value", "Panel")
+    get_gaussian_blur_pixel_size_position = cv2.getTrackbarPos("Gaussian Blurr Pixel Size", "Panel")
+    get_gaussian_blur_sigma_size_position = cv2.getTrackbarPos("Gaussian Blurr Sigma", "Panel", )
 
     #define lower range and upper range
     lower_green_range = np.array([get_lower_hue_trackbar_position, get_lower_saturation_trackbar_position, get_lower_value_trackbar_position])
-    upper_green_range = np.array([getl_upper_hue_trackbar_position, getl_upper_saturation_trackbar_position, getl_upper_value_trackbar_position])
+    upper_green_range = np.array([get_upper_hue_trackbar_position, get_upper_saturation_trackbar_position, get_upper_value_trackbar_position])
 
     # Create a Mask
     mask = cv2.inRange(hsv, lower_green_range, upper_green_range)
@@ -94,17 +103,30 @@ while True:
 
     # Read background video
     background_return, background_frame = background_video_capture.read()
-    background_frame = cv2.resize(background_frame, (cap_width, cap_height), interpolation=cv2.INTER_AREA)
+    try:
+        background_frame = cv2.resize(background_frame, (cap_width, cap_height), interpolation=cv2.INTER_AREA)
+        foreground = cv2.GaussianBlur(foreground, (get_gaussian_blur_pixel_size_position, get_gaussian_blur_pixel_size_position),
+                                           get_gaussian_blur_sigma_size_position, get_gaussian_blur_sigma_size_position)
 
-    # Change the color of the frame
+        # Change the color of the frame
     #background_frame_hsv = cv2.cvtColor(background_frame, cv2.COLOR_BGR2HSV)
-    background_frame[mask == 0] = 0
-    final_complete_frame = background_frame + foreground
+        background_frame[mask == 0] = 0
+    except Exception as e:
+        print(str(e))
+
+    final_complete_frame = foreground + background_frame
 
     debug.title = 'class: main def: while cap.isOpened()'
     debug_path = {'callback.x': callback.x,
                   'callback.y': callback.y,
-                  'video_window_name': video_window_name}
+                  'video_window_name': video_window_name,
+                  'cap_width': cap_width,
+                  'cap_height:': cap_height,
+                  'callback.y': callback.y,
+                  'callback.x': callback.x,
+                  'h_pixel_of_mouse_click': h_pixel_of_mouse_click,
+                  'h_pixel_of_mouse_click_shape':  h_pixel_of_mouse_click_shape,
+                  'h_pixel': h_pixel}
     debug.print_value_dictionary(debug_path)
     if ret == True:
 
@@ -112,7 +134,7 @@ while True:
         # cv2.imshow("Mask", mask)
         # cv2.imshow("Mask of Asteroid", mask_of_asteroid)
         # cv2.imshow("Background Frame Mask", background_frame)
-        # cv2.imshow("Foreground", foreground)
+        cv2.imshow("Foreground", foreground)
         # cv2.imshow("Background", background)
         cv2.imshow("Final Complete Video", final_complete_frame)
         cv2.imshow("Panel", panel)
