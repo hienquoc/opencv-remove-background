@@ -75,8 +75,8 @@ while True:
     getl_upper_value_trackbar_position = cv2.getTrackbarPos("Upper Value", "Panel")
     get_gaussian_pixel = cv2.getTrackbarPos("Gaussian Pixel", "Panel")
     get_gaussian_sigma = cv2.getTrackbarPos("Gaussian Sigma", "Panel")
-
-    frame = cv2.GaussianBlur(frame, (get_gaussian_pixel, get_gaussian_pixel), get_gaussian_sigma, get_gaussian_sigma)
+    if get_gaussian_pixel % 2 != 0:
+        frame = cv2.GaussianBlur(frame, (get_gaussian_pixel, get_gaussian_pixel), get_gaussian_sigma, get_gaussian_sigma)
     # Change the color of the frame
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
