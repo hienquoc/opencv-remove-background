@@ -41,6 +41,8 @@ cv2.createTrackbar("Lower Saturation", "Panel", 0, 255, nothing)
 cv2.createTrackbar("Upper Saturation", "Panel", 255, 255, nothing)
 cv2.createTrackbar("Lower Value", "Panel", 0, 255, nothing)
 cv2.createTrackbar("Upper Value", "Panel", 255, 255, nothing)
+cv2.createTrackbar("Gaussian Pixel", "Panel", 1, 25, nothing)
+cv2.createTrackbar("Gaussian Sigma", "Panel", 1, 25, nothing)
 
 # Background Video
 background_video_filepath = os.path.abspath(os.getcwd()) + '\\Nebula - 25168.mp4'
@@ -65,21 +67,26 @@ while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
 
-    # Change the color of the frame
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
     get_lower_hue_trackbar_position = cv2.getTrackbarPos("Lower Hue", "Panel")
     getl_upper_hue_trackbar_position = cv2.getTrackbarPos("Upper Hue", "Panel")
     get_lower_saturation_trackbar_position = cv2.getTrackbarPos("Lower Saturation", "Panel")
     getl_upper_saturation_trackbar_position = cv2.getTrackbarPos("Upper Saturation", "Panel")
     get_lower_value_trackbar_position = cv2.getTrackbarPos("Lower Value", "Panel")
     getl_upper_value_trackbar_position = cv2.getTrackbarPos("Upper Value", "Panel")
+    get_gaussian_pixel = cv2.getTrackbarPos("Gaussian Pixel", "Panel")
+    get_gaussian_sigma = cv2.getTrackbarPos("Gaussian Sigma", "Panel")
+
+    frame = cv2.GaussianBlur(frame, (get_gaussian_pixel, get_gaussian_pixel), get_gaussian_sigma, get_gaussian_sigma)
+    # Change the color of the frame
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     #define lower range and upper range
     lower_green_range = np.array([get_lower_hue_trackbar_position, get_lower_saturation_trackbar_position, get_lower_value_trackbar_position])
     upper_green_range = np.array([getl_upper_hue_trackbar_position, getl_upper_saturation_trackbar_position, getl_upper_value_trackbar_position])
 
     # Create a Mask
+
     mask = cv2.inRange(hsv, lower_green_range, upper_green_range)
     mask_inverse = cv2.bitwise_not(mask)
 
