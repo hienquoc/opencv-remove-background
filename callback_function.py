@@ -11,6 +11,7 @@ class CallBackFunction:
         self.name_of_window = custom_name_of_window
         self.x = None
         self.y = None
+        self.leftMouseClick = None
         cv2.namedWindow(self.name_of_window)
 
         self.debug = Utility(custom_turn_on_debug=True)
@@ -25,6 +26,7 @@ class CallBackFunction:
         if event == cv2.EVENT_LBUTTONDOWN:
             self.x = x
             self.y = y
+            self.leftMouseClick = event
             self.debug.title = 'class: CallBackFunction def: press_left_mouse_button_get_x_y_coordinates'
             self.debug_variable_dictionary = {
                 'event': event,

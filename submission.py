@@ -48,6 +48,7 @@ cv2.createTrackbar("Gaussian Sigma", "Panel", 1, 25, nothing)
 background_video_filepath = os.path.abspath(os.getcwd()) + '\\Nebula - 25168.mp4'
 background_video_capture = cv2.VideoCapture(background_video_filepath)
 
+#
 debug.title = 'class: main def: after if statement'
 debug_path = {'cap.isOpened': cap.isOpened(),
               'file_path': file_path,
@@ -81,6 +82,15 @@ while True:
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    h_pixel_of_mouse_click = hsv[callback.y, callback.x, 0]
+    h_pixel = h_pixel_of_mouse_click.item(0)
+    lower_h_pixel = int(h_pixel) - 10
+    upper_h_pixel = int(h_pixel) + 10
+    if callback.leftMouseClick != None:
+        cv2.setTrackbarPos("Lower Hue", "Panel", lower_h_pixel)
+        cv2.setTrackbarPos("Upper Hue", "Panel", upper_h_pixel)
+        callback.leftMouseClick = None
+
     #define lower range and upper range
     lower_green_range = np.array([get_lower_hue_trackbar_position, get_lower_saturation_trackbar_position, get_lower_value_trackbar_position])
     upper_green_range = np.array([getl_upper_hue_trackbar_position, getl_upper_saturation_trackbar_position, getl_upper_value_trackbar_position])
@@ -111,7 +121,10 @@ while True:
     debug.title = 'class: main def: while cap.isOpened()'
     debug_path = {'callback.x': callback.x,
                   'callback.y': callback.y,
-                  'video_window_name': video_window_name}
+                  'video_window_name': video_window_name,
+                  'h_pixel': h_pixel,
+                  'hsv.shape': hsv.shape,
+                  'hsv': hsv}
     debug.print_value_dictionary(debug_path)
     if ret == True:
 
@@ -119,7 +132,7 @@ while True:
         # cv2.imshow("Mask", mask)
         # cv2.imshow("Mask of Asteroid", mask_of_asteroid)
         # cv2.imshow("Background Frame Mask", background_frame)
-        # cv2.imshow("Foreground", foreground)
+        cv2.imshow(video_window_name, frame)
         # cv2.imshow("Background", background)
         cv2.imshow("Final Complete Video", final_complete_frame)
         cv2.imshow("Panel", panel)
@@ -127,6 +140,6 @@ while True:
         # This will slow down the video
         cv2.waitKey(25)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(25) & 0xFF == ord('q'):
         break
 cv2.destroyAllWindows()
